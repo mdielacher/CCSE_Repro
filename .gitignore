@@ -1,3 +1,8 @@
 /streamlit/.venv/
 /streamlit/__pycache__/
 /mlruns/**
+/airflow/config/**
+/airflow/plugins/**
+/airflow/logs/**
+/airflow/__pycache__/**
+/airflow/dags/__pycache__/
