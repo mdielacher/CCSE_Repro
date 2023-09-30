@@ -1,5 +1,15 @@
 # Projekt zur Vorhersage der Immobilienpreise in Wien
 
+# ToDo:
+docstrings und Kommentare in jedem Code
+in mlflow füge einen tag mit der Datenversion hinzu
+
+Streamlit-Report:
+Barchart
+Wien-Karte mit Bezirke - interaktive mit Karte pro Jahr
+Modell-Output Plot (Recherche) - in mlflow generieren und an streamlit weiterleiten
+
+
 
 ## Datensatz
 ### Abkürzungen im Dataset
