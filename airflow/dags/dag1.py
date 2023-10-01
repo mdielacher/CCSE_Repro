@@ -12,7 +12,7 @@ default_args = {
 }
 
 dag = DAG(
-    'ML-Workflow-Real-Estate-Transactions-Vienna',
+    'Test-Workflow',
     default_args=default_args,
     schedule_interval=None,  # Setzen Sie den Ausführungszeitplan oder lassen Sie ihn auf None, um manuelle Ausführung zu ermöglichen
 )
