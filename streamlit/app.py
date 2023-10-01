@@ -37,7 +37,7 @@ def basic_site():
 
     st.title("Data Visualiserung von Liegenschaftpreisen in Wien")
 
-    st.image("wien.jpeg")
+    #st.image("wien.jpeg")
 
  
 
@@ -49,27 +49,30 @@ def main():
 
     basic_site()
 
-    data_prep = DataPrep("kaufpreissammlung-liegenschaften.csv")
+    data_prep = DataPrep("/home/daniel/Dokumente/FH_StPölten/Clean_Coding/CCSE_Repro/data/trainData_20230930/cleaned_data.parquet")
 
-    data_prep.convert_erwerbsdatum_to_datetime()
+   # data_prep.convert_erwerbsdatum_to_datetime()
 
  
 
     viz = Viz(data_prep.df)
 
-    viz.BarChart("Häufigkeit der Zuordnung der Liegenschaft nach PLZ", "PLZ", "zuordnung")
+    viz.BarChart("Häufigkeit der Zuordnung der Liegenschaft nach PLZ", "PLZ", "Liegenschaftstyp_Nummer")
 
  
 
     print(data_prep.df.columns)
 
-    viz.histogram("Kaufpreis ")
+    #viz.histogram("Kaufpreis")
     
     
 
-    viz.LineChart("Durchschnittliche Kaufpreise pro Tag")
+    #viz.LineChart("Durchschnittliche Kaufpreise pro Tag")
                   
- 
+    viz.plot_price_trend(1020, 7)
+
+    viz.plot_map()
+    
 
 if __name__ == "__main__":
 
