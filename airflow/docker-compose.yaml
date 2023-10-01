@@ -43,7 +43,6 @@
 #                                Default: ''
 #
 # Feel free to modify this file to suit your needs.
----
 version: '3.8'
 x-airflow-common:
   &airflow-common
@@ -71,7 +70,7 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- pandas==1.5.1 scikit-learn==1.2.0}
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- pandas==1.5.1 scikit-learn==1.2.0 mlflow==1.29.0}
   volumes:
     - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -86,6 +85,13 @@ x-airflow-common:
       condition: service_healthy
 
 services:
+
+  mlflow:
+    build:
+      dockerfile: docker_mlflow/Dockerfile
+    ports:
+      - 600:600
+      
   postgres:
     image: postgres:13
     environment:

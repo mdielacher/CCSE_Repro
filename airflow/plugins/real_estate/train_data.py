@@ -1,5 +1,5 @@
 import pandas as pd
-
+import mlflow
 
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
@@ -52,7 +52,8 @@ class TrainData:
     def train_model_GridSearch(self, X_train, X_test, y_train, y_test, column_transformer, models):
         
             # Set up an MLflow experiment
-        #mlflow.set_experiment(experiment_name)
+        mlflow.set_tracking_uri('http://mlflow:600')
+        mlflow.set_experiment("Test")
     
 
         # Loop through the list of models, create a pipeline for each, and perform hyperparameter tuning
@@ -91,5 +92,3 @@ class TrainData:
             print(f"Best Hyperparameters: {best_params}")
             print(f"Mean Squared Error: {mse}")
             print(f"R-squared: {r2}")
-
-

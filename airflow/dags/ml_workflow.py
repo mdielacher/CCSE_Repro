@@ -70,19 +70,7 @@ model_training_task = PythonOperator(
     dag=dag,
 )
 
-
-def task_3_function():
-    print("Task 3 wurde ausgeführt")
-
-
-task_3 = PythonOperator(
-    task_id='task_3',
-    python_callable=task_3_function,
-    dag=dag
-)
-
 load_data_task >> data_preprocessing_task >> model_training_task
-load_data_task >> data_preprocessing_task >> task_3
 
 if __name__ == "__main__":
     dag.cli()

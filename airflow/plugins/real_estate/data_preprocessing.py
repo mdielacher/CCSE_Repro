@@ -1,5 +1,6 @@
 import pandas as pd 
 from datetime import datetime
+import os
 
 class DataPreprocessing:
     def __init__(self, df):
@@ -18,6 +19,25 @@ class DataPreprocessing:
         }
         self.df = self.df.rename(columns=rename_names)
         return self.df
+
+    def export_data_to_parquet(self, output_dir):
+        try:
+            # Create a timestamp with the current date and time
+            timestamp = datetime.now().strftime('%Y%m%d')
+
+            # Create a directory path with the timestamp
+            export_dir = os.path.join(output_dir, f'trainData_{timestamp}')
+            os.makedirs(export_dir, exist_ok=True)
+
+            # Define the Parquet file path within the directory
+            file_path = os.path.join(export_dir, 'cleaned_data.parquet')
+
+            # Export the DataFrame to Parquet format
+            self.df.to_parquet(file_path, engine='auto', index=False)
+
+            print(f"Data exported to Parquet file: {file_path}")
+        except Exception as e:
+            print(f"Error exporting data to Parquet: {str(e)}")
 
     def clean_data_entries(self):
         # Clean up PLZ
