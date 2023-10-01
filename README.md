@@ -12,7 +12,7 @@ Modell-Output Plot (Recherche) - in mlflow generieren und an streamlit weiterlei
 ## Wie installiere ich die Dienste?
 ```bash
 cd airflow
-docker compose up -d
+docker compose up
 ```
 Das Standard Passwort ist **airflow** und der Username ist **airflow**.
 
