@@ -22,9 +22,13 @@ def preprocess_data(df):
 
 
 def model_training(cleaned_df):
-    categorical_columns = ['PLZ', 'Liegenschaftstyp_Nummer']
+    categorical_columns = ['PLZ', 'Liegenschaftstyp_Nummer'] # DEFINE
+    target = 'Kaufpreis' # DEFINE
+    test_data_split='2021-01-01' # DEFINE
     train_data = TrainData(cleaned_df)
-    train_data.split_data(categorical_columns, target='Kaufpreis', test_data_split='2021-01-01')
+    X_train, X_test, y_train, y_test = train_data.split_data(categorical_columns, target=target, test_data_split=test_data_split)
+    column_transformer, models = train_data.build_Grid_Search_pipeline(categorical_columns)
+    train_data.train_model_GridSearch(X_train, X_test, y_train, y_test, column_transformer, models) 
 
 
 # INIT Apache Airflow DAG
@@ -66,7 +70,19 @@ model_training_task = PythonOperator(
     dag=dag,
 )
 
+
+def task_3_function():
+    print("Task 3 wurde ausgeführt")
+
+
+task_3 = PythonOperator(
+    task_id='task_3',
+    python_callable=task_3_function,
+    dag=dag
+)
+
 load_data_task >> data_preprocessing_task >> model_training_task
+load_data_task >> data_preprocessing_task >> task_3
 
 if __name__ == "__main__":
     dag.cli()
