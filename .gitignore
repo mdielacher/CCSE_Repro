@@ -1,5 +1,5 @@
 /streamlit/.venv
 /mlruns/**
-/airflow/config/**
 /airflow/logs/**
 **/__pycache__/
+**/credentials.json

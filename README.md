@@ -9,12 +9,29 @@ Barchart
 Wien-Karte mit Bezirke - interaktive mit Karte pro Jahr
 Modell-Output Plot (Recherche) - in mlflow generieren und an streamlit weiterleiten
 
+## Setup für die Verwendung von Azure Blob Storage
+
+Aus Sicherheitsgründen wird die Datei `credentials.json` nicht in dieses Repository gepusht. Stattdessen sollten Sie im Ordner `airflow/config` eine JSON-Datei erstellen und Ihre Azure Blob Storage-Zugangsdaten wie folgt darin speichern:
+
+```json
+{
+    "account_name": "mldatarealestate",
+    "account_key": "YOUR_ACCOUNT_KEY_HERE",
+    "container_name": "mldata"
+}
+```
+
+Laden sie die Daten von https://www.data.gv.at/en/application/real-estate-transactions-in-vienna/ und speichern Sie diese in Ihren Azure Blob Storage.
+
+
+
 ## Wie installiere ich die Dienste?
 ```bash
 cd airflow
 docker compose up
 ```
 Das Standard Passwort ist **airflow** und der Username ist **airflow**.
+Docker Compose up führt Airflow auf **http://localhost:8080/** aus und MLFlow auf **http://localhost:600/**
 
 ## Datensatz
 ### Abkürzungen im Dataset

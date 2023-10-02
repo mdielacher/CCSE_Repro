@@ -53,7 +53,7 @@ class TrainData:
         
             # Set up an MLflow experiment
         mlflow.set_tracking_uri('http://mlflow:600')
-        mlflow.set_experiment("Test")
+        mlflow.set_experiment("Real Estate Model")
     
 
         # Loop through the list of models, create a pipeline for each, and perform hyperparameter tuning
@@ -84,9 +84,9 @@ class TrainData:
             r2 = r2_score(y_test, y_pred)
             
             # Log the model, parameters, and metrics to MLflow
-            #mlflow.sklearn.log_model(best_pipeline, model_name)
-            #mlflow.log_params(best_params)  # Log the best hyperparameters
-            #mlflow.log_metrics({'mse': mse, 'r2': r2})
+            mlflow.sklearn.log_model(best_pipeline, model_name)
+            mlflow.log_params(best_params)  # Log the best hyperparameters
+            mlflow.log_metrics({'mse': mse, 'r2': r2})
             
             print(f"Model: {model_name}")
             print(f"Best Hyperparameters: {best_params}")

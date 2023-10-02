@@ -2,15 +2,18 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from datetime import datetime
 
-from real_estate.data_loader import DataLoader
+from real_estate.data_loader import AzureBlobStorageLoader
 from real_estate.data_preprocessing import DataPreprocessing
 from real_estate.train_data import TrainData
+from real_estate.upload_data import AzureBlobStorageUploader
 
 
 
 def load_data():
-    data_loader = DataLoader()
-    df = data_loader.load_data()
+    settings_file = "config/credentials.json"  # Datei mit Kontodaten
+    loader = AzureBlobStorageLoader(settings_file)
+    local_file_name="kaufpreissammlung-liegenschaften.csv"
+    df = loader.load_data(local_file_name)
     return df
 
 # Daten-Vorbereitung
@@ -29,6 +32,11 @@ def model_training(cleaned_df):
     X_train, X_test, y_train, y_test = train_data.split_data(categorical_columns, target=target, test_data_split=test_data_split)
     column_transformer, models = train_data.build_Grid_Search_pipeline(categorical_columns)
     train_data.train_model_GridSearch(X_train, X_test, y_train, y_test, column_transformer, models) 
+
+def upload_data(cleaned_df):
+    settings_file = "config/credentials.json"
+    uploader = AzureBlobStorageUploader(cleaned_df, settings_file)
+    uploader.upload_data()
 
 
 # INIT Apache Airflow DAG
@@ -70,7 +78,16 @@ model_training_task = PythonOperator(
     dag=dag,
 )
 
+upload_data_on_blob_storage_task = PythonOperator(
+    task_id='upload_data_on_blob_storage',
+    python_callable=upload_data,
+    op_args=[data_preprocessing_task.output], 
+    provide_context=True,
+    dag=dag,
+)
+
 load_data_task >> data_preprocessing_task >> model_training_task
+load_data_task >> data_preprocessing_task >> upload_data_on_blob_storage_task
 
 if __name__ == "__main__":
     dag.cli()
