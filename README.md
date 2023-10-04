@@ -36,7 +36,7 @@ AZURE_CONTAINER_NAME: 'mldata'
 
 4. Services:      
 - Streamlit:[http://localhost:8501](http://localhost:8501)
-- Airflow: [http://localhost:8080](http://localhost:8080) Username:Password is admin:admin
+- Airflow: [http://localhost:8080](http://localhost:8080) Benutzername ist admin und Passwort admin
 - MLFlow: [http://localhost:5000](http://localhost:5000)
 
 
