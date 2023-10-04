@@ -69,10 +69,10 @@ def main():
 
     #viz.LineChart("Durchschnittliche Kaufpreise pro Tag")
                   
-    viz.plot_price_trend(1020, 7)
+    viz.plot_price_trend()
 
     viz.plot_map()
-    
+
 
 if __name__ == "__main__":
 

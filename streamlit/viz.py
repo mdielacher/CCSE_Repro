@@ -17,12 +17,26 @@ class DataPrep:
 
  
 
-#     def convert_erwerbsdatum_to_datetime(self):
+def map_liegenschaft_to_number(df):
+    # Sample DataFrame
+    dict_liegenschaft = {
+        'Liegenschaftstyp_Nummer': [0, 8, 12, 9, 4, 10, 6, 1, 5, 7, 11, 2, 3],
+        'Liegenschaftstyp': [
+            'Abbruchobjekt', 'Mietwohnhaus voll/tw. vermietet', 'unbebaut', 'Sonstiges',
+            'Ein-, Zweifamilienhaus', 'Villa', 'Landwirtsch. Nutzung', 'Betriebsobjekt',
+            'Kleingarten', 'Mietwohnhaus leer', 'Weingarten', 'Büro- u./o. Geschäftsgebäude',
+            'Büro- u./o. Geschäftsgebäude leer'
+        ]
+    }
+    df_liegenschaft = pd.DataFrame(dict_liegenschaft)
 
-#         date_format='%d.%m.%Y'
+    # Create a dictionary from the DataFrame
+    mapping_dict = dict(zip(df_liegenschaft['Liegenschaftstyp_Nummer'], df_liegenschaft['Liegenschaftstyp']))
 
-#         self.df["Erwerbsdatum"] = pd.to_datetime(self.df["Erwerbsdatum"], format=date_format, errors='coerce')
+    # Map 'Liegenschaftstyp_Nummer' to 'Liegenschaftstyp' in the 'TEST' DataFrame
+    df['Liegenschaftstyp'] = df['Liegenschaftstyp_Nummer'].map(mapping_dict)
 
+    return df
  
 
     
@@ -139,29 +153,42 @@ class Viz:
 
 
 
-    def plot_price_trend(self, plz, liegenschaftstyp):
+    def plot_price_trend(self):
+        # Create a Streamlit sidebar for user input
+        st.sidebar.title("Trendanalyse Kaufpreis Liegenschaften")
 
+        
+        # PLZ Input with multi-select
+        plz_selection = st.sidebar.multiselect("PLZ auswählen", sorted(self.df["PLZ"].unique()), key="plz_multiselect")
 
-        # Filter the DataFrame by PLZ and Liegenschaftstyp
-        analysis_df = self.df[(self.df["PLZ"] == plz) & (self.df["Liegenschaftstyp_Nummer"] == liegenschaftstyp)]
+        # Liegenschaftstyp Input
+        self.df = map_liegenschaft_to_number(self.df)
+        default_liegenschaftstyp = 4  # Set your default value here
+        liegenschaftstyp = st.sidebar.selectbox("Liegenschaftstyp für Liniendiagramm auswählen", sorted(self.df["Liegenschaftstyp"].unique()), key="liegenschaftstyp_select", index=default_liegenschaftstyp)
 
-        analysis_df['Preis pro qm2'] = analysis_df['Kaufpreis'] / analysis_df['Fläche']
+        # if not plz_selection:
+        #     st.warning("Bitte wählen Sie mindestens eine PLZ aus.")
+        #     return
 
-        # Group by "Erwerbsdatum" and calculate the mean of "Preis pro qm2"
-        avg_price_per_year = analysis_df.groupby(analysis_df['Erwerbsdatum'].dt.year)['Preis pro qm2'].mean()
+        # Create a figure with a specified size (e.g., 8x6 inches)
+        fig, ax = plt.subplots(figsize=(8, 6))
 
-        # Calculate a rolling 3-year average (adjust as needed)
-        rolling_avg = avg_price_per_year.rolling(window=3).mean()
+        for plz in plz_selection:
+            # Filter the DataFrame by selected PLZ and Liegenschaftstyp
+            analysis_df = self.df[(self.df["PLZ"] == plz) & (self.df["Liegenschaftstyp"] == liegenschaftstyp)]
 
-        # Create a figure
-        fig, ax = plt.subplots(figsize=(6, 5))
+            analysis_df['Preis pro qm2'] = analysis_df['Kaufpreis'] / analysis_df['Fläche']
 
-        # Plot the data
-        ax.plot(avg_price_per_year.index, avg_price_per_year.values, marker='o', linestyle='-', label='Preis pro qm2 (Durchschnitt pro Jahr)')
-        ax.plot(avg_price_per_year.index, rolling_avg.values, linestyle='-', linewidth=2, label='Gleitender 3-Jahres-Durchschnitt')
-        ax.set_title(f'Trendanalyse: Preis pro Quadratmeter für PLZ {plz} über die Jahre, für den Liegenschaftstyp: {liegenschaftstyp}')
+            # Group by "Erwerbsdatum" and calculate the mean of "Preis pro qm2"
+            avg_price_per_year = analysis_df.groupby(analysis_df['Erwerbsdatum'].dt.year)['Preis pro qm2'].mean()
+
+            # Plot the data for each PLZ
+            ax.plot(avg_price_per_year.index, avg_price_per_year.values, marker='o', linestyle='-', label=f'PLZ {plz}')
+
+        ax.set_title(f'Trendanalyse: Preis pro Quadratmeter für ausgewählte PLZs über die Jahre, für den Liegenschaftstyp: {liegenschaftstyp}')
         ax.set_xlabel('Jahr')
         ax.set_ylabel('Preis pro Quadratmeter (in EUR)')
+        ax.legend()
         ax.grid(True)
 
         # Display the plot in Streamlit
@@ -170,9 +197,8 @@ class Viz:
 
 
 
-
     def plot_map(self):
-
+  
         viennese_districts = {
             1010: {"latitude": 48.2092, "longitude": 16.3728},
             1020: {"latitude": 48.2149, "longitude": 16.4083},
@@ -212,13 +238,28 @@ class Viz:
         # Set the index of the GeoDataFrame to the keys of the dictionary
         viennese_districts_gdf.index = viennese_districts.keys()
 
+
         data = self.df  # Replace df with your actual DataFrame
+
+        data = map_liegenschaft_to_number(data)
+
+        # Liegenschaftstyp Input with a default value
+        default_liegenschaftstyp = 4  # Set your default value here
+        liegenschaftstyp = st.sidebar.selectbox("Liegenschaftstyp für Karte auswählen", sorted(data["Liegenschaftstyp"].unique()), key="liegenschaftstyp_map", index=default_liegenschaftstyp)
+
+        # Filter the data for the specified Liegenschaftstyp
+        data = data[data["Liegenschaftstyp"] == liegenschaftstyp]
+
+        # Choose year > 2017
+        #data = data[data["Erwerbsdatum"] >= pd.to_datetime('2017-01-01')]
+
 
         data["Preis_pro_qm2"] = data["Kaufpreis"] / data["PLZ"]
 
         # Group by postal code and calculate average price
         average_prices = data.groupby("PLZ")["Preis_pro_qm2"].mean().reset_index()
 
+        
         # Merge the dataframes on the 'PLZ' column
         average_prices = average_prices.merge(viennese_districts_gdf, left_on='PLZ', right_index=True, how='left')
 
@@ -227,10 +268,6 @@ class Viz:
         map_data['latitude'] = map_data['geometry'].apply(lambda geom: geom.y)
         map_data['longitude'] = map_data['geometry'].apply(lambda geom: geom.x)
         
-        # # Display the map in Streamlit
-        # st.title("Durchschnittlicher Kaufpreis von Liegenschaften in Wien")
-        # st.map(map_data)
-
         # Create a map centered on Vienna
         vienna_map = folium.Map(location=[48.2082, 16.3738], zoom_start=12)
 
@@ -245,51 +282,6 @@ class Viz:
             ).add_to(vienna_map)
 
         # Display the map in Streamlit
-        st.title("Durchschnittlicher Kaufpreis von Liegenschaften in Wien")
+        st.title("Durchschnittlicher Kaufpreis von Liegenschaften in Wien (2000-2022)")
         folium_static(vienna_map)
-
-
-
-
-
-        
-
-        # data = self.df
-
-        # # Group by postal code and calculate average price
-        # average_prices = data.groupby("PLZ")["Kaufpreis"].mean().reset_index()
-
-        # # Merge the dataframes on the 'PLZ' column
-        # average_prices = average_prices.merge(pd.DataFrame.from_dict(viennese_districts, orient='index'), left_on='PLZ', right_index=True)
-
-        # # Create a map centered on Vienna
-        # vienna_map = folium.Map(location=[48.2082, 16.3738], zoom_start=12)
-
-        # # Add markers for each postal code with average price as tooltip
-        # for _, row in average_prices.iterrows():
-        #     folium.Marker(
-        #         location=[row["latitude"], row["longitude"]],
-        #         tooltip=f"PLZ: {row['PLZ']}, durschschnittlicher Kaufpreis: €{row['Kaufpreis']:.2f}",
-        #     ).add_to(vienna_map)
-
-
-        # # # Display the map in Jupyter Notebook
-        # # display(vienna_map)
-
-        # # Display the map in Streamlit
-        # st.title("durschschnittlicher Kaufpreis von Liegenschaften in Wien")
-        # st.map(vienna_map)
-
-
-
-    # Sample usage:
-    # Load your DataFrame df before calling this function
-    # plz = 1210  # Example PLZ
-    # liegenschaftstyp = "Example Type"
-    # plot_price_trend(df, plz, liegenschaftstyp)
-
-
-        
-
-
 
