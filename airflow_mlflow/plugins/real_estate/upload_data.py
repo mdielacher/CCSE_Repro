@@ -1,21 +1,12 @@
 from azure.storage.blob import BlobServiceClient
-import json
+import os
 
 class AzureBlobStorageUploader:
-    def __init__(self, df, settings_file):
-        self.settings_file = settings_file
-        self.load_credentials()
+    def __init__(self, df):
         self.df = df
-
-    def load_credentials(self):
-        # Lese die Verbindungsdaten aus dem Settings-Datei
-        with open(self.settings_file, 'r') as data:
-            data = json.load(data)
-        self.account_name = data["account_name"]
-        self.account_key = data["account_key"]
-        self.container_name = data["container_name"]
-
-            # Erzeuge die Verbindungszeichenfolge
+        self.account_name = os.environ['AZURE_ACCOUNT_NAME']
+        self.account_key = os.environ['AZURE_ACCOUNT_KEY']
+        self.container_name = os.environ['AZURE_COUNTAINER_NAME']
         self.connect_str = (
             f'DefaultEndpointsProtocol=https;AccountName={self.account_name};'
             f'AccountKey={self.account_key};EndpointSuffix=core.windows.net'

@@ -1,37 +1,44 @@
-# Projekt zur Vorhersage der Immobilienpreise in Wien
+# Immobilienpreisvorhersage-Projekt
 
-# ToDo:
-docstrings und Kommentare in jedem Code
-in mlflow füge einen tag mit der Datenversion hinzu
+Das Immobilienpreisvorhersage-Projekt hat das Ziel, eine Vorhersage der Immobilienpreise auf Basis von öffentlich verfügbaren Daten von [data.gv.at](https://www.data.gv.at/katalog/dataset/c307f89d-b01a-4da2-9f9e-cf3fd2dd651e) durchzuführen. Dieses Projekt legt den Schwerpunkt auf die Erstellung einer effizienten Datenverarbeitungspipeline und die Verwendung der Model Registry. Der R^2-Wert der Modelle kann variieren, da die Hauptzielsetzung auf der Automatisierung und Orchestrierung von ML-Workflows liegt.
 
-Streamlit-Report:
-Barchart
-Wien-Karte mit Bezirke - interaktive mit Karte pro Jahr
-Modell-Output Plot (Recherche) - in mlflow generieren und an streamlit weiterleiten
+## Features
 
-## Setup für die Verwendung von Azure Blob Storage
+- Orchestrierung von Workflows mit Apache Airflow.
+- Nutzung der Features von MLflow zur Modellverwaltung und -verfolgung.
+- Erstellung einer interaktiven Benutzeroberfläche mit Streamlit zur Anzeige von Ergebnissen und zur einfachen Bedienung der Anwendung.
 
-Aus Sicherheitsgründen wird die Datei `credentials.json` nicht in dieses Repository gepusht. Stattdessen sollten Sie im Ordner `airflow/config` eine JSON-Datei erstellen und Ihre Azure Blob Storage-Zugangsdaten wie folgt darin speichern:
+## Voraussetzungen
 
-```json
-{
-    "account_name": "mldatarealestate",
-    "account_key": "YOUR_ACCOUNT_KEY_HERE",
-    "container_name": "mldata"
-}
+Um das Projekt erfolgreich auszuführen, müssen Sie die folgenden Umgebungsvariablen in einer `docker-compose.override.yml`-Datei festlegen:
+```
+AZURE_ACCOUNT_NAME: 'mldatarealestate'
+AZURE_ACCOUNT_KEY: 'YOUR_KEY'
+AZURE_CONTAINER_NAME: 'mldata'
 ```
 
-Laden sie die Daten von https://www.data.gv.at/en/application/real-estate-transactions-in-vienna/ und speichern Sie diese in Ihren Azure Blob Storage.
+## Anleitung
 
+1. Laden Sie Docker herunter und installieren Sie es: [Docker Installationsanleitung](https://docs.docker.com/get-docker/).
 
+2. Installieren Sie `astro` (Astro CLI) auf Ihrem System:
 
-## Wie installiere ich die Dienste?
-```bash
-cd airflow
-docker compose up
-```
-Das Standard Passwort ist **airflow** und der Username ist **airflow**.
-Docker Compose up führt Airflow auf **http://localhost:8080/** aus und MLFlow auf **http://localhost:600/**
+   ```bash
+   # Für MacOS/Linux
+   brew install astro
+   ```
+
+3. Starten Sie die Anwendung mit dem folgenden Befehl:
+
+    ```bash
+    astro dev start
+    ```
+
+4. Services:      
+- Streamlit:[http://localhost:8501](http://localhost:8501)
+- Airflow: [http://localhost:8080](http://localhost:8080) Username:Password is admin:admin
+- MLFlow: [http://localhost:5000](http://localhost:5000)
+
 
 ## Datensatz
 ### Abkürzungen im Dataset

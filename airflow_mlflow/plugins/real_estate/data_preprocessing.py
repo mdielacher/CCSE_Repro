@@ -97,3 +97,5 @@ class DataPreprocessing:
         # Drop rows with missing values in specified columns
         self.df = self.df.dropna()
         return self.df
+
+        

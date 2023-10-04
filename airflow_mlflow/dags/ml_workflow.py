@@ -1,3 +1,5 @@
+import os
+
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from datetime import datetime
@@ -7,13 +9,11 @@ from real_estate.data_preprocessing import DataPreprocessing
 from real_estate.train_data import TrainData
 from real_estate.upload_data import AzureBlobStorageUploader
 
-
-
 def load_data():
-    settings_file = "config/credentials.json"  # Datei mit Kontodaten
-    loader = AzureBlobStorageLoader(settings_file)
+    #settings_file = "credentials.json"  # Datei mit Kontodaten
+    loader = AzureBlobStorageLoader()
     local_file_name="kaufpreissammlung-liegenschaften.csv"
-    df = loader.load_data(local_file_name)
+    df = loader.data_loader(local_file_name)
     return df
 
 # Daten-Vorbereitung
@@ -34,8 +34,7 @@ def model_training(cleaned_df):
     train_data.train_model_GridSearch(X_train, X_test, y_train, y_test, column_transformer, models) 
 
 def upload_data(cleaned_df):
-    settings_file = "config/credentials.json"
-    uploader = AzureBlobStorageUploader(cleaned_df, settings_file)
+    uploader = AzureBlobStorageUploader(cleaned_df)
     uploader.upload_data()
 
 
