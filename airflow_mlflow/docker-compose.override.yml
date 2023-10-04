@@ -15,7 +15,7 @@ services:
       AWS_ACCESS_KEY_ID: 'minioadmin'
       AWS_SECRET_ACCESS_KEY: 'minioadmin'
       AZURE_ACCOUNT_NAME: 'mldatarealestate'
-      AZURE_ACCOUNT_KEY: 'hw9cq0l0DXyc71Q8XLWXlFVXxSKDb1cwVlfPznqp+Gb46Th+GY1DThpUZ1Zrnd3cAGXeBgn+R4Xi+AStpdKaYw=='
+      AZURE_ACCOUNT_KEY: 'YOUAPIKEY'
       AZURE_COUNTAINER_NAME: 'mldata'
   minio:
     image: quay.io/minio/minio:latest
