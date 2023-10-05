@@ -3,6 +3,8 @@ from azure.storage.blob import BlobServiceClient
 import pandas as pd
 import io
 import os
+import viz
+
 
 class AzureBlobStorageLoader:
     def __init__(self):
@@ -28,7 +30,24 @@ def load_data(file_name):
     df = loader.data_loader(file_name)
     return df
 
+
 st.title("Immobilientransaktionen Wien - Analyse")
+
+#st.image("/home/daniel/Dokumente/FH_StPölten/Clean_Coding/CCSE_Repro/streamlit/wien.jpeg")
+
+
 #st.set_page_config(page_title="Immobilientransaktionen Wien",page_icon=None,layout="wide",initial_sidebar_state="auto",)
 df = load_data(file_name="analysis_data.csv")
 st.write(df)
+
+viz = viz.Viz(df)
+
+#viz.BarChart("Häufigkeit der Zuordnung der Liegenschaft nach PLZ", "PLZ", "Liegenschaftstyp_Nummer")
+#viz.histogram("Kaufpreis")
+#viz.LineChart("Durchschnittliche Kaufpreise pro Tag")
+                
+viz.plot_price_trend()
+
+viz.plot_map()
+
+viz.get_Prediction_with_User_Input()

@@ -5,7 +5,15 @@ apache-airflow-providers-snowflake
 altair
 streamlit>=1.19.0
 weaviate-client
+pandas
+numpy
 seaborn
 matplotlib
 streamlit-aggrid
 azure-storage-blob==12.18.2
+folium
+streamlit_folium
+geopandas
+mlflow
+
+
