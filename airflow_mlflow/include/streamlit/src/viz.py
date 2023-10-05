@@ -8,6 +8,8 @@ from folium import plugins
 from streamlit_folium import folium_static
 import geopandas as gpd
 import mlflow
+import pickle
+import sklearn
 
 
 
@@ -41,17 +43,6 @@ def map_liegenschaft_to_number(df):
     return df
 
 
-# # Perform preprocessing on user input data
-# def preprocess_input(input_data, categorical_columns, encoder):
-#     # One-hot encode categorical columns
-#     input_data_encoded = encoder.transform(input_data[categorical_columns])
-    
-#     # Combine one-hot encoded data with numeric data (if any)
-#     input_data_numeric = input_data.drop(columns=categorical_columns)
-#     input_data_processed = pd.concat([input_data_encoded, input_data_numeric], axis=1)
-    
-#     return input_data_processed
-    
 
 
 # Perform preprocessing on user input data
@@ -164,11 +155,7 @@ class Viz:
 
         filtered_df = self.df
         filtered_df = filtered_df[["Erwerbsdatum", 'Kaufpreis']]
-        #filtered_df['Kaufpreis '] = filtered_df['Kaufpreis '].str.replace(',', '.')
-        # filtered_df['Kaufpreis'] = pd.to_numeric(filtered_df['Kaufpreis'])
-        # # Convert the 'Date' column to datetime, keeping errors as 'coerce' to convert non-matching values to NaN
-        # filtered_df['Erwerbsdatum'] = pd.to_datetime(filtered_df['Erwerbsdatum'], format='%d.%m.%Y', errors='coerce')
-
+  
         # Gruppieren Sie nach "Erwerbsdatum" und berechnen Sie den Durchschnitt
         avg_price_per_sqm = filtered_df.groupby("Erwerbsdatum")[filtered_df.columns[1]].mean()
 
@@ -177,38 +164,79 @@ class Viz:
 
 
 
+    # def get_Prediction_with_User_Input(self):
+
+    #     st.title("Modell-Prediction mit User Input")
+
+    #     # Load the MLflow model using the local tracking URI
+    #     mlflow.set_tracking_uri("http://localhost:5000")        
+
+    #     # Load the MLflow model
+    #     model_uri = "runs:/fcfe02f4f95844d08cf83ce246f947e2/Random Forest"  # Replace <RUN_ID> with your specific run ID
+    #     model = mlflow.pyfunc.load_model(model_uri)
+
+    #     # Create a Streamlit app
+    #     st.title("Model Prediction with User Input")
+
+    #     # Restrict user_input1 to Viennese postal codes
+    #     # Define the valid Viennese postal codes
+    #     viennese_postal_codes = [1010, 1020, 1030, 1040, 1050, 1060, 1070, 1080, 1090, 1100, 1110, 1120, 1130, 1140, 1150, 1160, 1170, 1180, 1190, 1200, 1210, 1220, 1230]
+    #     viennese_code = st.selectbox("Select Viennese Postal Code:", viennese_postal_codes)
+
+    #     # Restrict user_input2 to integers from 0 to 12
+    #     integer_value = st.selectbox("Select an Integer from 0 to 12:", list(range(13)))
+
+
+    #     if st.button("Predict"):
+    #         # Create a DataFrame with the input data
+    #         input_data = pd.DataFrame({'PLZ': [viennese_code], 'Liegenschaftstyp_Nummer': [integer_value]})
+    #         print(input_data)
+
+    #         prediction = model.predict(input_data)
+
+
+    #         st.write(f"Prediction: {prediction[0]}")  # Access the first prediction
+
+
+
     def get_Prediction_with_User_Input(self):
-
-        st.title("Modell-Prediction mit User Input")
-
-        # Load the MLflow model using the local tracking URI
-        mlflow.set_tracking_uri("http://localhost:5000")        
-
-        # Load the MLflow model
-        model_uri = "runs:/fcfe02f4f95844d08cf83ce246f947e2/Random Forest"  # Replace <RUN_ID> with your specific run ID
-        model = mlflow.pyfunc.load_model(model_uri)
-
-        # Create a Streamlit app
         st.title("Model Prediction with User Input")
+
+        # Load the model from the pickle file
+        with open('model.pkl', 'rb') as file:
+            model_rf = pickle.load(file)
 
         # Restrict user_input1 to Viennese postal codes
         # Define the valid Viennese postal codes
         viennese_postal_codes = [1010, 1020, 1030, 1040, 1050, 1060, 1070, 1080, 1090, 1100, 1110, 1120, 1130, 1140, 1150, 1160, 1170, 1180, 1190, 1200, 1210, 1220, 1230]
         viennese_code = st.selectbox("Select Viennese Postal Code:", viennese_postal_codes)
 
-        # Restrict user_input2 to integers from 0 to 12
-        integer_value = st.selectbox("Select an Integer from 0 to 12:", list(range(13)))
 
+        # Define the valid 'Liegenschaftstyp' options and their corresponding numeric values
+        liegenschaftstyp_options = [
+            'Abbruchobjekt', 'Mietwohnhaus voll/tw. vermietet', 'unbebaut', 'Sonstiges',
+            'Ein-, Zweifamilienhaus', 'Villa', 'Landwirtsch. Nutzung', 'Betriebsobjekt',
+            'Kleingarten', 'Mietwohnhaus leer', 'Weingarten', 'Büro- u./o. Geschäftsgebäude',
+            'Büro- u./o. Geschäftsgebäude leer'
+        ]
+        liegenschaftstyp_mapping = {
+            option: index for index, option in enumerate(liegenschaftstyp_options)
+        }
+
+        # Get the user's selection for 'Liegenschaftstyp'
+        selected_liegenschaftstyp = st.selectbox("Select Liegenschaftstyp:", liegenschaftstyp_options)
+
+        # Map the selected string to its numeric representation
+        liegenschaftstyp_num = liegenschaftstyp_mapping[selected_liegenschaftstyp]
 
         if st.button("Predict"):
             # Create a DataFrame with the input data
-            input_data = pd.DataFrame({'PLZ': [viennese_code], 'Liegenschaftstyp_Nummer': [integer_value]})
+            input_data = pd.DataFrame({'PLZ': [viennese_code], 'Liegenschaftstyp_Nummer': [liegenschaftstyp_num]})
             print(input_data)
 
-            prediction = model.predict(input_data)
+            prediction = model_rf.predict(input_data)
 
-
-            st.write(f"Prediction: {prediction[0]}")  # Access the first prediction
+            st.write(f"Prediction: {round(prediction[0],2)}")  # Access the first prediction
 
 
 

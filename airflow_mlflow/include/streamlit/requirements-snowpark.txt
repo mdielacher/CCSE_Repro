@@ -15,5 +15,4 @@ folium
 streamlit_folium
 geopandas
 mlflow
-
-
+scikit-learn
