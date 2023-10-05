@@ -156,7 +156,6 @@ class Viz:
     
 
 
-
     
 
     def LineChart(self, name, column1 = "Erwerbsdatum", column2="Kaufpreis"):
@@ -186,7 +185,7 @@ class Viz:
         mlflow.set_tracking_uri("http://localhost:5000")        
 
         # Load the MLflow model
-        model_uri = "runs:/327005f69b6b48c889a5f7d38b120c1d/Random Forest"  # Replace <RUN_ID> with your specific run ID
+        model_uri = "runs:/fcfe02f4f95844d08cf83ce246f947e2/Random Forest"  # Replace <RUN_ID> with your specific run ID
         model = mlflow.pyfunc.load_model(model_uri)
 
         # Create a Streamlit app
@@ -228,9 +227,7 @@ class Viz:
         default_liegenschaftstyp = 4  # Set your default value here
         liegenschaftstyp = st.sidebar.selectbox("Liegenschaftstyp für Liniendiagramm auswählen", sorted(self.df["Liegenschaftstyp"].unique()), key="liegenschaftstyp_select", index=default_liegenschaftstyp)
 
-        # if not plz_selection:
-        #     st.warning("Bitte wählen Sie mindestens eine PLZ aus.")
-        #     return
+        self.df['Erwerbsdatum'] = pd.to_datetime(self.df['Erwerbsdatum'])
 
         # Create a figure with a specified size (e.g., 8x6 inches)
         fig, ax = plt.subplots(figsize=(8, 6))
@@ -239,10 +236,8 @@ class Viz:
             # Filter the DataFrame by selected PLZ and Liegenschaftstyp
             analysis_df = self.df[(self.df["PLZ"] == plz) & (self.df["Liegenschaftstyp"] == liegenschaftstyp)]
 
-            analysis_df['Preis pro qm2'] = analysis_df['Kaufpreis'] / analysis_df['Fläche']
-
             # Group by "Erwerbsdatum" and calculate the mean of "Preis pro qm2"
-            avg_price_per_year = analysis_df.groupby(analysis_df['Erwerbsdatum'].dt.year)['Preis pro qm2'].median()
+            avg_price_per_year = analysis_df.groupby(analysis_df['Erwerbsdatum'].dt.year)['Quadratmeterpreis'].median()
 
             # Plot the data for each PLZ
             ax.plot(avg_price_per_year.index, avg_price_per_year.values, marker='o', linestyle='-', label=f'PLZ {plz}')
@@ -313,14 +308,9 @@ class Viz:
         # Filter the data for the specified Liegenschaftstyp
         data = data[data["Liegenschaftstyp"] == liegenschaftstyp]
 
-        # Choose year > 2017
-        #data = data[data["Erwerbsdatum"] >= pd.to_datetime('2017-01-01')]
-
-
-        data["Preis_pro_qm2"] = data["Kaufpreis"] / data["PLZ"]
 
         # Group by postal code and calculate average price
-        average_prices = data.groupby("PLZ")["Preis_pro_qm2"].median().reset_index()
+        average_prices = data.groupby("PLZ")["Quadratmeterpreis"].median().reset_index()
 
         
         # Merge the dataframes on the 'PLZ' column
@@ -341,7 +331,7 @@ class Viz:
         for _, row in map_data.iterrows():
             folium.Marker(
                 location=[row['latitude'], row['longitude']],
-                tooltip=f"Bezirk: {row['PLZ']}<br>Durschnitsspreis pro qm2: €{row['Preis_pro_qm2']:.2f}",
+                tooltip=f"Bezirk: {row['PLZ']}<br>Durschnitsspreis pro qm2: €{row['Quadratmeterpreis']:.2f}",
             ).add_to(vienna_map)
 
         # Display the map in Streamlit
