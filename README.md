@@ -24,9 +24,14 @@ AZURE_CONTAINER_NAME: 'mldata'
 2. Installieren Sie `astro` (Astro CLI) auf Ihrem System:
 
    ```bash
-   # Für MacOS/Linux
+   # Für MacOS
    brew install astro
    ```
+
+    ```bash
+    # Für Linux
+    curl -sSL install.astronomer.io | sudo bash -s
+    ```
 
 3. Starten Sie die Anwendung mit dem folgenden Befehl:
 
