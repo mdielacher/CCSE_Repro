@@ -5,9 +5,26 @@ import os
 
 class DataPreprocessing:
     def __init__(self, df):
+        """
+        Initialize the DataPreprocessing class with a DataFrame.
+
+        Args:
+            df (pd.DataFrame): The input DataFrame containing the raw data.
+        """
+
         self.df = df
 
+
+
     def select_cols(self):
+        """
+        Select and clean relevant columns from the DataFrame.
+
+        Returns:
+            pd.DataFrame: The DataFrame with selected and renamed columns.
+        """
+
+
         # Select relevant columns
         self.df = self.df[["PLZ", "Erwerbsdatum", "zuordnung", "Kaufpreis \x80", "Gst.Fl.", "ErwArt", "% Widmung"]]
 
@@ -20,8 +37,17 @@ class DataPreprocessing:
         }
         self.df = self.df.rename(columns=rename_names)
         return self.df
+    
+
 
     def export_data_to_parquet(self, output_dir):
+        """
+        Export the preprocessed DataFrame to a Parquet file.
+
+        Args:
+            output_dir (str): The directory where the Parquet file will be saved.
+        """
+
         try:
             # Create a timestamp with the current date and time
             timestamp = datetime.now().strftime('%Y%m%d')
@@ -40,7 +66,17 @@ class DataPreprocessing:
         except Exception as e:
             print(f"Error exporting data to Parquet: {str(e)}")
 
+
+
+
     def clean_data_entries(self):
+        """
+        Perform data cleaning operations on the DataFrame.
+
+        Returns:
+            pd.DataFrame: The DataFrame with cleaned data.
+        """
+
         # Clean up PLZ
         vienna_districts = [
             1010,  # Innere Stadt
@@ -69,6 +105,7 @@ class DataPreprocessing:
         ]
         # Use the isin() method to filter rows where 'PLZ' is not in the list
         self.df = self.df[self.df['PLZ'].isin(vienna_districts)]
+        
         # Convert 'PLZ' to int and drop rows with NaN values in 'PLZ' column
         self.df = self.df.dropna(subset=['PLZ'])
         self.df['PLZ'] = self.df['PLZ'].astype(int)

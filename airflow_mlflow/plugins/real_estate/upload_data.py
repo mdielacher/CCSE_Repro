@@ -3,6 +3,12 @@ import os
 
 class AzureBlobStorageUploader:
     def __init__(self, df):
+        """
+        Initializes the AzureBlobStorageUploader.
+
+        Args:
+            df (pd.DataFrame): The DataFrame containing the data to be uploaded to Azure Blob Storage.
+        """
         self.df = df
         self.account_name = os.environ['AZURE_ACCOUNT_NAME']
         self.account_key = os.environ['AZURE_ACCOUNT_KEY']
@@ -13,6 +19,14 @@ class AzureBlobStorageUploader:
         )
 
     def upload_data(self):
+        """
+        Uploads the DataFrame data to Azure Blob Storage.
+
+        This method serializes the DataFrame to a CSV format and uploads it to a specified blob in Azure Blob Storage.
+
+        Returns:
+            None
+        """
         blob_name = "analysis_data.csv" 
         csv_data = self.df.to_csv(index=False, sep=';')
         blob_service_client = BlobServiceClient(account_url=f"https://{self.account_name}.blob.core.windows.net", credential=self.account_key)

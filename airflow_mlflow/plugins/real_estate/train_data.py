@@ -15,9 +15,28 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 class TrainData:
     def __init__(self, df):
+        """
+        Initialize the TrainData class with a DataFrame.
+
+        Args:
+            df (pd.DataFrame): The input DataFrame containing the data.
+        """
         self.df = df
 
+
     def split_data(self, feat, target, test_data_split='2021-01-01'):
+        """
+        Split the data into training and testing sets based on the specified date (time-based split).
+
+        Args:
+            feat (list): List of feature columns.
+            target (str): Name of the target column.
+            test_data_split (str): Date in the format 'yyyy-mm-dd' to split the data. Default is '2021-01-01'.
+
+        Returns:
+            pd.DataFrame: Training and testing sets for features and target.
+        """
+
         test_data_split = pd.to_datetime(test_data_split)
 
         # Filter the DataFrame for data points where 'Erwerbsdatum' is greater than or equal to '2021-01-01'
@@ -33,8 +52,20 @@ class TrainData:
         y_train = train_df[target]
         y_test = test_df[target]
         return X_train, X_test, y_train, y_test
+    
 
     def build_Grid_Search_pipeline(self, categorical_columns):
+        """
+        Build a machine learning pipeline for hyperparameter tuning.
+
+        Args:
+            categorical_columns (list): List of categorical feature columns.
+
+        Returns:
+            ColumnTransformer: Preprocessing step for one-hot encoding.
+            list: List of models with hyperparameter grids.
+        """
+
         # Create a ColumnTransformer for one-hot encoding categorical columns
         column_transformer = ColumnTransformer(
             transformers=[
@@ -53,6 +84,16 @@ class TrainData:
 
 
     def create_minio_buckets(replace_existing=False) -> dict:
+        """
+        Create or replace Minio buckets for MLflow logging.
+
+        Args:
+            replace_existing (bool): If True, replace existing buckets.
+
+        Returns:
+            dict: Dictionary of bucket names.
+        """
+
         import minio
         minio_conn = json.loads(os.environ['AIRFLOW_CONN_MINIO_DEFAULT'])
         bucket_names = {'mlflow': 'mlflow-data'}
@@ -85,12 +126,29 @@ class TrainData:
 
 
     def train_model_GridSearch(self, X_train, X_test, y_train, y_test, column_transformer, models):
+        """
+        Train machine learning models with hyperparameter tuning using sklearn's GridSearchCV.
+
+        This method trains multiple machine learning models with hyperparameter tuning using GridSearchCV.
+        It logs the best model, hyperparameters, and evaluation metrics to MLflow.
+
+        Args:
+            X_train (pd.DataFrame): Training features.
+            X_test (pd.DataFrame): Testing features.
+            y_train (pd.Series): Training target.
+            y_test (pd.Series): Testing target.
+            column_transformer (ColumnTransformer): Preprocessing step for one-hot encoding.
+            models (list): List of tuples containing model name, model object, and hyperparameter grid.
+
+        Returns:
+            None
+        """
         
-            # Set up an MLflow experiment
+        # Set up an MLflow experiment
         TrainData.create_minio_buckets(replace_existing=True) 
 
         
-            # Loop through the list of models, create a pipeline for each, and perform hyperparameter tuning
+        # Loop through the list of models, create a pipeline for each, and perform hyperparameter tuning
         for model_name, model, param_grid in models:
             with mlflow.start_run(run_name=model_name) as run:
                 mlflow.set_experiment("Real estate transactions Vienna Model")
