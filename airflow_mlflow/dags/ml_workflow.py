@@ -1,16 +1,16 @@
-import os
-
+# IMPORTS
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from datetime import datetime
 
+# CLASSES
 from real_estate.data_loader import AzureBlobStorageLoader
 from real_estate.data_preprocessing import DataPreprocessing
 from real_estate.train_data import TrainData
 from real_estate.upload_data import AzureBlobStorageUploader
 
+# LOAD DATA AZURE
 def load_data():
-    #settings_file = "credentials.json"  # Datei mit Kontodaten
     loader = AzureBlobStorageLoader()
     local_file_name="kaufpreissammlung-liegenschaften.csv"
     df = loader.data_loader(local_file_name)
@@ -24,7 +24,7 @@ def preprocess_data(df):
     print(cleaned_df.Quadratmeterpreis)
     return cleaned_df
 
-
+# MODEL TRAINING
 def model_training(cleaned_df):
     categorical_columns = ['PLZ', 'Liegenschaftstyp_Nummer'] # DEFINE
     target = 'Quadratmeterpreis' # DEFINE
@@ -34,10 +34,10 @@ def model_training(cleaned_df):
     column_transformer, models = train_data.build_Grid_Search_pipeline(categorical_columns)
     train_data.train_model_GridSearch(X_train, X_test, y_train, y_test, column_transformer, models) 
 
+# UPLOAD DATA 2 AZURE
 def upload_data(cleaned_df):
     uploader = AzureBlobStorageUploader(cleaned_df)
     uploader.upload_data()
-
 
 # INIT Apache Airflow DAG
 default_args = {
@@ -52,7 +52,7 @@ dag = DAG(
     schedule_interval=None,  # Setzen Sie den Ausführungszeitplan oder lassen Sie ihn auf None, um manuelle Ausführung zu ermöglichen
 )
 
-#LOAD DATA
+#LOAD DATA VON AZURE 
 load_data_task = PythonOperator(
     task_id='load_data',
     python_callable=load_data,
@@ -69,7 +69,7 @@ data_preprocessing_task = PythonOperator(
     dag=dag,
 )
 
-#DATA TRAINING
+#MODEL TRAINING TASK
 model_training_task = PythonOperator(
     task_id='model_training',
     python_callable=model_training,
@@ -78,6 +78,7 @@ model_training_task = PythonOperator(
     dag=dag,
 )
 
+#UPLOAD DATA 2 AZURE TASK
 upload_data_on_blob_storage_task = PythonOperator(
     task_id='upload_data_on_blob_storage',
     python_callable=upload_data,
@@ -86,8 +87,10 @@ upload_data_on_blob_storage_task = PythonOperator(
     dag=dag,
 )
 
+#DAG DEFINITION
 load_data_task >> data_preprocessing_task >> model_training_task
 load_data_task >> data_preprocessing_task >> upload_data_on_blob_storage_task
 
+# DAG CLIENT AUFRUFEN
 if __name__ == "__main__":
     dag.cli()

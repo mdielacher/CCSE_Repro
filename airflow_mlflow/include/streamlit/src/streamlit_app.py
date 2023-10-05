@@ -35,7 +35,6 @@ st.title("Immobilientransaktionen Wien - Analyse")
 
 
 df = load_data(file_name="analysis_data.csv")
-st.write(df)
 
 viz = viz.Viz(df)
 

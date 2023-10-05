@@ -3,6 +3,7 @@ import pandas as pd
 import io
 import os
 
+
 class AzureBlobStorageLoader:
     def __init__(self):
         self.account_name = os.environ['AZURE_ACCOUNT_NAME']
