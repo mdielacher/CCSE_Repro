@@ -12,16 +12,17 @@ import pickle
 import sklearn
 
 
-
-class DataPrep:
-
-    def __init__(self, path):
-
-        self.df = pd.read_parquet(path)
-
- 
-
 def map_liegenschaft_to_number(df):
+    """
+    Maps Liegenschaft types from numeric values to their corresponding string representations in the DataFrame.
+
+    Parameters:
+    df (pandas.DataFrame): The DataFrame containing 'Liegenschaftstyp_Nummer' column to be mapped.
+
+    Returns:
+    pandas.DataFrame: The DataFrame with an additional 'Liegenschaftstyp' column containing the mapped string values.
+    """
+        
     # Sample DataFrame
     dict_liegenschaft = {
         'Liegenschaftstyp_Nummer': [0, 8, 12, 9, 4, 10, 6, 1, 5, 7, 11, 2, 3],
@@ -41,31 +42,14 @@ def map_liegenschaft_to_number(df):
     df['Liegenschaftstyp'] = df['Liegenschaftstyp_Nummer'].map(mapping_dict)
 
     return df
-
-
-
-
-# Perform preprocessing on user input data
-def preprocess_input(input_data, categorical_columns, encoder):
-    # Create a DataFrame from input_data
-    input_df = pd.DataFrame(
-        data=input_data.T,  # Transpose input_data to match the shape of the encoder's output
-        columns=categorical_columns
-    )
-
-    # One-hot encode categorical columns
-    input_data_encoded = encoder.transform(input_df)
-
-    return input_data_encoded
-
  
+
 
 class Viz:
 
     def __init__(self, df):
 
         self.df = df
-
 
 
     def BarChart(self, name, column1, column2):
@@ -86,8 +70,6 @@ class Viz:
         # Dropdown for "Zuordnung" filtering
         unique_zuordnung_values = self.df['Liegenschaftstyp_Nummer'].unique()
         selected_zuordnung = st.selectbox("Welche Art von Liegenschaft?", unique_zuordnung_values)
-    
-        #self.df[column2] = pd.to_numeric(self.df[column2].str.replace(',', '.'), errors='coerce').fillna(0)
     
         # Apply filter for selected "Zuordnung"
         filtered_df = self.df[self.df['Liegenschaftstyp_Nummer'] == selected_zuordnung]
@@ -112,7 +94,7 @@ class Viz:
 
 
 
-    def histogram(self, column):
+    def Histogram(self, column):
         # Replace commas with periods in the specified column
         st.subheader(f'Histogram of {column}')
         max_value = st.number_input("Maximaler Kaufpreis:", value=1000000, key="max_value")
@@ -145,8 +127,6 @@ class Viz:
     
         st.altair_chart(chart)
     
-
-
     
 
     def LineChart(self, name, column1 = "Erwerbsdatum", column2="Kaufpreis"):
@@ -200,6 +180,17 @@ class Viz:
 
 
     def get_Prediction_with_User_Input(self):
+
+        """
+        Function for making model predictions with user input.
+
+        This function loads a machine learning model from a pickle file, takes user input for Viennese postal code and 'Liegenschaftstyp' (property type),
+        and uses the loaded model to make predictions based on the user input.
+
+        Returns:
+        None
+        """
+
         st.title("Model Prediction with User Input")
 
         # Load the model from the pickle file
@@ -219,15 +210,14 @@ class Viz:
             'Kleingarten', 'Mietwohnhaus leer', 'Weingarten', 'Büro- u./o. Geschäftsgebäude',
             'Büro- u./o. Geschäftsgebäude leer'
         ]
-        liegenschaftstyp_mapping = {
-            option: index for index, option in enumerate(liegenschaftstyp_options)
-        }
+        liegenschaftstyp_numbers = [0, 8, 12, 9, 4, 10, 6, 1, 5, 7, 11, 2, 3]
 
         # Get the user's selection for 'Liegenschaftstyp'
         selected_liegenschaftstyp = st.selectbox("Select Liegenschaftstyp:", liegenschaftstyp_options)
 
-        # Map the selected string to its numeric representation
-        liegenschaftstyp_num = liegenschaftstyp_mapping[selected_liegenschaftstyp]
+        # Map the selected string to its numeric representation using liegenschaftstyp_numbers
+        liegenschaftstyp_num = liegenschaftstyp_numbers[liegenschaftstyp_options.index(selected_liegenschaftstyp)]
+
 
         if st.button("Predict"):
             # Create a DataFrame with the input data
@@ -243,6 +233,18 @@ class Viz:
 
 
     def plot_price_trend(self):
+
+        """
+        Function for plotting the price trend of properties based on user input.
+
+        This function creates a Streamlit sidebar for user input, including the selection of postal codes (PLZ) and
+        property types (Liegenschaftstyp) to analyze the price trend over the years. It then generates a line plot
+        showing the median price per square meter for the selected postal codes and property types.
+
+        Returns:
+        None
+        """
+
         # Create a Streamlit sidebar for user input
         st.sidebar.title("Trendanalyse Kaufpreis Liegenschaften")
 
@@ -252,13 +254,15 @@ class Viz:
 
         # Liegenschaftstyp Input
         self.df = map_liegenschaft_to_number(self.df)
-        default_liegenschaftstyp = 4  # Set your default value here
+
+        # Set a default value for User Input
+        default_liegenschaftstyp = 4  
         liegenschaftstyp = st.sidebar.selectbox("Liegenschaftstyp für Liniendiagramm auswählen", sorted(self.df["Liegenschaftstyp"].unique()), key="liegenschaftstyp_select", index=default_liegenschaftstyp)
 
         self.df['Erwerbsdatum'] = pd.to_datetime(self.df['Erwerbsdatum'])
 
-        # Create a figure with a specified size (e.g., 8x6 inches)
-        fig, ax = plt.subplots(figsize=(8, 6))
+        # Create a figure with a specified size
+        fig, ax = plt.subplots(figsize=(12, 8))
 
         for plz in plz_selection:
             # Filter the DataFrame by selected PLZ and Liegenschaftstyp
@@ -284,7 +288,18 @@ class Viz:
 
 
     def plot_map(self):
+
+        """
+        Function for plotting a map of median property prices based on user input.
+        This function creates a map using Folium to visualize the median property prices per square meter in Vienna (Wien) districts.
+        Users can select a property type (Liegenschaftstyp) from a sidebar, and the map will display markers for each district with
+        the median price.
+
+        Returns:
+        None
+        """
   
+        # Geo-Coordinates of Centroids of Viennese districts
         viennese_districts = {
             1010: {"latitude": 48.2092, "longitude": 16.3728},
             1020: {"latitude": 48.2149, "longitude": 16.4083},
@@ -325,12 +340,12 @@ class Viz:
         viennese_districts_gdf.index = viennese_districts.keys()
 
 
-        data = self.df  # Replace df with your actual DataFrame
+        data = self.df 
 
         data = map_liegenschaft_to_number(data)
 
         # Liegenschaftstyp Input with a default value
-        default_liegenschaftstyp = 4  # Set your default value here
+        default_liegenschaftstyp = 4  
         liegenschaftstyp = st.sidebar.selectbox("Liegenschaftstyp für Karte auswählen", sorted(data["Liegenschaftstyp"].unique()), key="liegenschaftstyp_map", index=default_liegenschaftstyp)
 
         # Filter the data for the specified Liegenschaftstyp

@@ -40,7 +40,7 @@ st.write(df)
 viz = viz.Viz(df)
 
 #viz.BarChart("Häufigkeit der Zuordnung der Liegenschaft nach PLZ", "PLZ", "Liegenschaftstyp_Nummer")
-#viz.histogram("Kaufpreis")
+#viz.Histogram("Kaufpreis")
 #viz.LineChart("Durchschnittliche Kaufpreise pro Tag")
                 
 viz.plot_price_trend()
