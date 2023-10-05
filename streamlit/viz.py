@@ -180,17 +180,6 @@ class Viz:
 
     def get_Prediction_with_User_Input(self):
 
-        from sklearn.compose import ColumnTransformer
-        from sklearn.preprocessing import OneHotEncoder
-        import pickle
-
-
-        # Load the fitted ColumnTransformer
-        column_transformer_filename = "/home/daniel/Dokumente/FH_StPölten/Clean_Coding/CCSE_Repro/fitted_column_transformer.pkl"  # Replace with the actual path to your ColumnTransformer
-        with open(column_transformer_filename, 'rb') as file:
-            fitted_column_transformer = pickle.load(file)
-
-
         st.title("Modell-Prediction mit User Input")
 
         # Load the MLflow model using the local tracking URI
@@ -216,9 +205,6 @@ class Viz:
             # Create a DataFrame with the input data
             input_data = pd.DataFrame({'PLZ': [viennese_code], 'Liegenschaftstyp_Nummer': [integer_value]})
             print(input_data)
-
-            # Perform the same preprocessing as during training using the fitted ColumnTransformer
-            #input_data_processed = fitted_column_transformer.transform(input_data)
 
             prediction = model.predict(input_data)
 
