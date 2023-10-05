@@ -11,6 +11,12 @@ from real_estate.upload_data import AzureBlobStorageUploader
 
 # Load data von Azure Blob storage
 def load_data():
+    """
+    Loads data from Azure Blob Storage and returns it as a DataFrame.
+
+    Returns:
+        pd.DataFrame: The loaded data.
+    """
     loader = AzureBlobStorageLoader()
     local_file_name="kaufpreissammlung-liegenschaften.csv"
     df = loader.data_loader(local_file_name)
@@ -18,6 +24,15 @@ def load_data():
 
 # Daten-Vorbereitung
 def preprocess_data(df):
+    """
+    Preprocesses the input DataFrame.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame.
+
+    Returns:
+        pd.DataFrame: The preprocessed DataFrame.
+    """
     data_preprocessing = DataPreprocessing(df)
     data_preprocessing.select_cols()
     cleaned_df = data_preprocessing.clean_data_entries()
@@ -26,6 +41,15 @@ def preprocess_data(df):
 
 # Model training
 def model_training(cleaned_df):
+    """
+    Trains machine learning models using the cleaned DataFrame.
+
+    Args:
+        cleaned_df (pd.DataFrame): The cleaned DataFrame.
+
+    Returns:
+        None
+    """
     categorical_columns = ['PLZ', 'Liegenschaftstyp_Nummer'] # DEFINE
     target = 'Quadratmeterpreis' # DEFINE
     test_data_split='2021-01-01' # DEFINE
@@ -36,6 +60,15 @@ def model_training(cleaned_df):
 
 # Upload data zu Azure
 def upload_data(cleaned_df):
+    """
+    Uploads the cleaned DataFrame to Azure Blob Storage.
+
+    Args:
+        cleaned_df (pd.DataFrame): The cleaned DataFrame to be uploaded.
+
+    Returns:
+        None
+    """
     uploader = AzureBlobStorageUploader(cleaned_df)
     uploader.upload_data()
 
