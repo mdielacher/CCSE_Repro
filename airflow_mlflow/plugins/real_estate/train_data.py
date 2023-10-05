@@ -93,7 +93,7 @@ class TrainData:
             # Loop through the list of models, create a pipeline for each, and perform hyperparameter tuning
         for model_name, model, param_grid in models:
             with mlflow.start_run(run_name=model_name) as run:
-                mlflow.set_experiment("Real estate transactions Vienna Models")
+                mlflow.set_experiment("Real estate transactions Vienna Model")
                 # Create a machine learning pipeline
                 pipeline = Pipeline([
                     ('preprocessor', column_transformer),  # Apply one-hot encoding

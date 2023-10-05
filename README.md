@@ -2,6 +2,11 @@
 
 Das Immobilienpreisvorhersage-Projekt hat das Ziel, eine Vorhersage der Immobilienpreise auf Basis von öffentlich verfügbaren Daten von [data.gv.at](https://www.data.gv.at/katalog/dataset/c307f89d-b01a-4da2-9f9e-cf3fd2dd651e) durchzuführen. Dieses Projekt legt den Schwerpunkt auf die Erstellung einer effizienten Datenverarbeitungspipeline und die Verwendung der Model Registry. Der R^2-Wert der Modelle kann variieren, da die Hauptzielsetzung auf der Automatisierung und Orchestrierung von ML-Workflows liegt.
 
+Für das Projekt ist nur der airflow_mlflow Ordner relevant! 
+
+## Basis:
+Als Basis dient: [github.com/astronomer](https://github.com/astronomer/airflow-llm-demo/tree/main)
+
 ## Features
 
 - Orchestrierung von Workflows mit Apache Airflow.
