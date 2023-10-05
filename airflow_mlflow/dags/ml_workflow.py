@@ -9,7 +9,7 @@ from real_estate.data_preprocessing import DataPreprocessing
 from real_estate.train_data import TrainData
 from real_estate.upload_data import AzureBlobStorageUploader
 
-# LOAD DATA AZURE
+# Load data von Azure Blob storage
 def load_data():
     loader = AzureBlobStorageLoader()
     local_file_name="kaufpreissammlung-liegenschaften.csv"
@@ -24,7 +24,7 @@ def preprocess_data(df):
     print(cleaned_df.Quadratmeterpreis)
     return cleaned_df
 
-# MODEL TRAINING
+# Model training
 def model_training(cleaned_df):
     categorical_columns = ['PLZ', 'Liegenschaftstyp_Nummer'] # DEFINE
     target = 'Quadratmeterpreis' # DEFINE
@@ -34,7 +34,7 @@ def model_training(cleaned_df):
     column_transformer, models = train_data.build_Grid_Search_pipeline(categorical_columns)
     train_data.train_model_GridSearch(X_train, X_test, y_train, y_test, column_transformer, models) 
 
-# UPLOAD DATA 2 AZURE
+# Upload data zu Azure
 def upload_data(cleaned_df):
     uploader = AzureBlobStorageUploader(cleaned_df)
     uploader.upload_data()
@@ -45,14 +45,14 @@ default_args = {
     'start_date': datetime(2023, 1, 1),
 }
 
-#DEFININE DAG
+#Definiere DAG
 dag = DAG(
     'ML-Workflow-Real-Estate-Transactions-Vienna',
     default_args=default_args,
     schedule_interval=None,  # Setzen Sie den Ausführungszeitplan oder lassen Sie ihn auf None, um manuelle Ausführung zu ermöglichen
 )
 
-#LOAD DATA VON AZURE 
+#Load data von Azure
 load_data_task = PythonOperator(
     task_id='load_data',
     python_callable=load_data,
@@ -60,7 +60,7 @@ load_data_task = PythonOperator(
     dag=dag,
 )
 
-#DATA PREP
+#DData prep
 data_preprocessing_task = PythonOperator(
     task_id='data_preprocessing',
     python_callable=preprocess_data,
@@ -69,7 +69,7 @@ data_preprocessing_task = PythonOperator(
     dag=dag,
 )
 
-#MODEL TRAINING TASK
+#Model training mit Random Forrest und LR
 model_training_task = PythonOperator(
     task_id='model_training',
     python_callable=model_training,
@@ -78,7 +78,7 @@ model_training_task = PythonOperator(
     dag=dag,
 )
 
-#UPLOAD DATA 2 AZURE TASK
+#Upload data zu AZure
 upload_data_on_blob_storage_task = PythonOperator(
     task_id='upload_data_on_blob_storage',
     python_callable=upload_data,
