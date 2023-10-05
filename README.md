@@ -20,6 +20,8 @@ Als Basis dient: [github.com/astronomer](https://github.com/astronomer/airflow-l
 ## Voraussetzungen
 
 Um das Projekt erfolgreich auszuführen, müssen Sie die folgenden Umgebungsvariablen in einer `docker-compose.override.yml`-Datei festlegen:
+
+im Scheduler und auch im Streamlit Service (suchen Sie nach "YOURKEY")
 ```
 AZURE_ACCOUNT_NAME: 'mldatarealestate'
 AZURE_ACCOUNT_KEY: 'YOUR_KEY'
@@ -42,13 +44,19 @@ AZURE_CONTAINER_NAME: 'mldata'
     curl -sSL install.astronomer.io | sudo bash -s
     ```
 
-3. Starten Sie die Anwendung mit dem folgenden Befehl:
+3. gehen Sie in den airflow_mlflow Ordner
+   
+    ```bash
+    cd airflow_mlflow
+    ```
 
+4. Starten Sie die Anwendung mit dem folgenden Befehl:
+   
     ```bash
     astro dev start
     ```
 
-4. Services:      
+5. Services:      
 - Streamlit:[http://localhost:8501](http://localhost:8501)
 - Airflow: [http://localhost:8080](http://localhost:8080) Benutzername ist admin und Passwort admin
 - MLFlow: [http://localhost:5000](http://localhost:5000)
