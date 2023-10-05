@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import altair as alt
 import streamlit as st
 import matplotlib.pyplot as plt
@@ -6,6 +7,7 @@ import folium
 from folium import plugins 
 from streamlit_folium import folium_static
 import geopandas as gpd
+import mlflow
 
 
 
@@ -37,9 +39,33 @@ def map_liegenschaft_to_number(df):
     df['Liegenschaftstyp'] = df['Liegenschaftstyp_Nummer'].map(mapping_dict)
 
     return df
- 
 
+
+# # Perform preprocessing on user input data
+# def preprocess_input(input_data, categorical_columns, encoder):
+#     # One-hot encode categorical columns
+#     input_data_encoded = encoder.transform(input_data[categorical_columns])
     
+#     # Combine one-hot encoded data with numeric data (if any)
+#     input_data_numeric = input_data.drop(columns=categorical_columns)
+#     input_data_processed = pd.concat([input_data_encoded, input_data_numeric], axis=1)
+    
+#     return input_data_processed
+    
+
+
+# Perform preprocessing on user input data
+def preprocess_input(input_data, categorical_columns, encoder):
+    # Create a DataFrame from input_data
+    input_df = pd.DataFrame(
+        data=input_data.T,  # Transpose input_data to match the shape of the encoder's output
+        columns=categorical_columns
+    )
+
+    # One-hot encode categorical columns
+    input_data_encoded = encoder.transform(input_df)
+
+    return input_data_encoded
 
  
 
@@ -152,6 +178,56 @@ class Viz:
 
 
 
+    def get_Prediction_with_User_Input(self):
+
+        from sklearn.compose import ColumnTransformer
+        from sklearn.preprocessing import OneHotEncoder
+        import pickle
+
+
+        # Load the fitted ColumnTransformer
+        column_transformer_filename = "/home/daniel/Dokumente/FH_StPölten/Clean_Coding/CCSE_Repro/fitted_column_transformer.pkl"  # Replace with the actual path to your ColumnTransformer
+        with open(column_transformer_filename, 'rb') as file:
+            fitted_column_transformer = pickle.load(file)
+
+
+        st.title("Modell-Prediction mit User Input")
+
+        # Load the MLflow model using the local tracking URI
+        mlflow.set_tracking_uri("http://localhost:5000")        
+
+        # Load the MLflow model
+        model_uri = "runs:/327005f69b6b48c889a5f7d38b120c1d/Random Forest"  # Replace <RUN_ID> with your specific run ID
+        model = mlflow.pyfunc.load_model(model_uri)
+
+        # Create a Streamlit app
+        st.title("Model Prediction with User Input")
+
+        # Restrict user_input1 to Viennese postal codes
+        # Define the valid Viennese postal codes
+        viennese_postal_codes = [1010, 1020, 1030, 1040, 1050, 1060, 1070, 1080, 1090, 1100, 1110, 1120, 1130, 1140, 1150, 1160, 1170, 1180, 1190, 1200, 1210, 1220, 1230]
+        viennese_code = st.selectbox("Select Viennese Postal Code:", viennese_postal_codes)
+
+        # Restrict user_input2 to integers from 0 to 12
+        integer_value = st.selectbox("Select an Integer from 0 to 12:", list(range(13)))
+
+
+        if st.button("Predict"):
+            # Create a DataFrame with the input data
+            input_data = pd.DataFrame({'PLZ': [viennese_code], 'Liegenschaftstyp_Nummer': [integer_value]})
+            print(input_data)
+
+            # Perform the same preprocessing as during training using the fitted ColumnTransformer
+            #input_data_processed = fitted_column_transformer.transform(input_data)
+
+            prediction = model.predict(input_data)
+
+
+            st.write(f"Prediction: {prediction[0]}")  # Access the first prediction
+
+
+
+
 
     def plot_price_trend(self):
         # Create a Streamlit sidebar for user input
@@ -180,7 +256,7 @@ class Viz:
             analysis_df['Preis pro qm2'] = analysis_df['Kaufpreis'] / analysis_df['Fläche']
 
             # Group by "Erwerbsdatum" and calculate the mean of "Preis pro qm2"
-            avg_price_per_year = analysis_df.groupby(analysis_df['Erwerbsdatum'].dt.year)['Preis pro qm2'].mean()
+            avg_price_per_year = analysis_df.groupby(analysis_df['Erwerbsdatum'].dt.year)['Preis pro qm2'].median()
 
             # Plot the data for each PLZ
             ax.plot(avg_price_per_year.index, avg_price_per_year.values, marker='o', linestyle='-', label=f'PLZ {plz}')
@@ -191,9 +267,10 @@ class Viz:
         ax.legend()
         ax.grid(True)
 
+        st.title("Time Trend Median Quadratmeterpreis von Liegenschaften pro Bezirk")
+
         # Display the plot in Streamlit
         st.pyplot(fig)
-
 
 
 
@@ -257,7 +334,7 @@ class Viz:
         data["Preis_pro_qm2"] = data["Kaufpreis"] / data["PLZ"]
 
         # Group by postal code and calculate average price
-        average_prices = data.groupby("PLZ")["Preis_pro_qm2"].mean().reset_index()
+        average_prices = data.groupby("PLZ")["Preis_pro_qm2"].median().reset_index()
 
         
         # Merge the dataframes on the 'PLZ' column
@@ -282,6 +359,6 @@ class Viz:
             ).add_to(vienna_map)
 
         # Display the map in Streamlit
-        st.title("Durchschnittlicher Kaufpreis von Liegenschaften in Wien (2000-2022)")
+        st.title("Median Quadratmeterpreis von Liegenschaften in Wien (2000-2022)")
         folium_static(vienna_map)
 

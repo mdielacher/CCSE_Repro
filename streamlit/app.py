@@ -37,7 +37,7 @@ def basic_site():
 
     st.title("Data Visualiserung von Liegenschaftpreisen in Wien")
 
-    #st.image("wien.jpeg")
+    st.image("/home/daniel/Dokumente/FH_StPölten/Clean_Coding/CCSE_Repro/streamlit/wien.jpeg")
 
  
 
@@ -61,7 +61,7 @@ def main():
 
  
 
-    print(data_prep.df.columns)
+    #print(data_prep.df.columns)
 
     #viz.histogram("Kaufpreis")
     
@@ -72,6 +72,8 @@ def main():
     viz.plot_price_trend()
 
     viz.plot_map()
+
+    viz.get_Prediction_with_User_Input()
 
 
 if __name__ == "__main__":
