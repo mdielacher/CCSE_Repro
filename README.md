@@ -4,6 +4,7 @@ Das Immobilienpreisvorhersage-Projekt hat das Ziel, eine Vorhersage der Immobili
 
 Für das Projekt ist nur der airflow_mlflow Ordner relevant! 
 
+
 ## Basis:
 Als Basis dient: [github.com/astronomer](https://github.com/astronomer/airflow-llm-demo/tree/main)
 
@@ -12,6 +13,9 @@ Als Basis dient: [github.com/astronomer](https://github.com/astronomer/airflow-l
 - Orchestrierung von Workflows mit Apache Airflow.
 - Nutzung der Features von MLflow zur Modellverwaltung und -verfolgung.
 - Erstellung einer interaktiven Benutzeroberfläche mit Streamlit zur Anzeige von Ergebnissen und zur einfachen Bedienung der Anwendung.
+
+## Architektur
+![Architektur](git_images/architecture.png)
 
 ## Voraussetzungen
 

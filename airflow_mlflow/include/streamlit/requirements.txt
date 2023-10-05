@@ -7,3 +7,4 @@ pyarrow==10.0.1
 psycopg2-binary==2.9.6
 minio==7.1.15
 sqlalchemy==2.0.18
+azure-storage-blob==12.18.2
