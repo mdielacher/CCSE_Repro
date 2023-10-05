@@ -1,5 +1,7 @@
 import streamlit as st
-from ....plugins.real_estate.data_loader import AzureBlobStorageLoader
+from azure.storage.blob import BlobServiceClient
+import pandas as pd
+import io
 import os
 
 class AzureBlobStorageLoader:
@@ -17,7 +19,7 @@ class AzureBlobStorageLoader:
         container_client = blob_service_client.get_container_client(self.container_name)
         blob_client = container_client.get_blob_client(local_file_name)
         csv_content = blob_client.download_blob().readall()
-        data = pd.read_csv(io.BytesIO(csv_content), sep=";", encoding="Latin-1", low_memory=False, parse_dates=["Erwerbsdatum", "BJ"])
+        data = pd.read_csv(io.BytesIO(csv_content), sep=";", encoding="Latin-1", low_memory=False)
         return data
 
 
@@ -27,6 +29,6 @@ def load_data(file_name):
     return df
 
 st.title("Immobilientransaktionen Wien - Analyse")
-st.set_page_config(page_title="Immobilientransaktionen Wien",page_icon=None,layout="wide",initial_sidebar_state="auto",)
+#st.set_page_config(page_title="Immobilientransaktionen Wien",page_icon=None,layout="wide",initial_sidebar_state="auto",)
 df = load_data(file_name="analysis_data.csv")
 st.write(df)
