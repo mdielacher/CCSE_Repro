@@ -1,4 +1,5 @@
 import pandas as pd 
+import numpy as np
 from datetime import datetime
 import os
 
@@ -93,6 +94,13 @@ class DataPreprocessing:
         self.df["Erwerbsdatum"] = pd.to_datetime(self.df["Erwerbsdatum"], format=date_format, errors='coerce')
         self.df = self.df[self.df['Erwerbsdatum'] < pd.to_datetime(datetime.now().date())]
         self.df = self.df[self.df['Erwerbsdatum'] >= pd.to_datetime("2000-01-01")]
+
+        # add Quadratmeterpreis
+        self.df["Quadratmeterpreis"] = self.df["Kaufpreis"] / self.df["Fläche"]
+        self.df = self.df[self.df['Quadratmeterpreis'] > 0]
+        self.df = self.df[~np.isinf(self.df['Quadratmeterpreis'])]
+        self.df["Quadratmeterpreis"] = self.df["Quadratmeterpreis"].astype(int)
+        
 
         # Drop rows with missing values in specified columns
         self.df = self.df.dropna()

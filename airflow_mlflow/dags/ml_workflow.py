@@ -21,12 +21,13 @@ def preprocess_data(df):
     data_preprocessing = DataPreprocessing(df)
     data_preprocessing.select_cols()
     cleaned_df = data_preprocessing.clean_data_entries()
+    print(cleaned_df.Quadratmeterpreis)
     return cleaned_df
 
 
 def model_training(cleaned_df):
     categorical_columns = ['PLZ', 'Liegenschaftstyp_Nummer'] # DEFINE
-    target = 'Kaufpreis' # DEFINE
+    target = 'Quadratmeterpreis' # DEFINE
     test_data_split='2021-01-01' # DEFINE
     train_data = TrainData(cleaned_df)
     X_train, X_test, y_train, y_test = train_data.split_data(categorical_columns, target=target, test_data_split=test_data_split)
