@@ -64,6 +64,7 @@ AZURE_CONTAINER_NAME: 'mldata'
 ## zukünftige To-Do's:
 - semantische Standortanalyse: Im Projekt ist auch Weaviate miteingebunden, dies wurde nicht gelöscht, da man in der Zukunft eine semantische Standortanalyse machen könnte.
 - Daten auf minio  speichern
+- besseres Modell
 
 ## Datensatz
 ### Abkürzungen im Dataset
