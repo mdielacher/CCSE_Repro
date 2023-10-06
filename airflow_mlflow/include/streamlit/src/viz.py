@@ -191,7 +191,7 @@ class Viz:
         None
         """
 
-        st.title("Model Prediction with User Input")
+        st.subheader("Model Prediction with User Input")
 
         # Load the model from the pickle file
         with open('model.pkl', 'rb') as file:
@@ -280,7 +280,7 @@ class Viz:
         ax.legend()
         ax.grid(True)
 
-        st.title("Time Trend Median Quadratmeterpreis von Liegenschaften pro Bezirk")
+        st.subheader("Time Trend Median Quadratmeterpreis von Liegenschaften pro Bezirk")
 
         # Display the plot in Streamlit
         st.pyplot(fig)
@@ -378,6 +378,6 @@ class Viz:
             ).add_to(vienna_map)
 
         # Display the map in Streamlit
-        st.title("Median Quadratmeterpreis von Liegenschaften in Wien (2000-2022)")
+        st.subheader("Median Quadratmeterpreis von Liegenschaften in Wien (2000-2022)")
         folium_static(vienna_map)
 

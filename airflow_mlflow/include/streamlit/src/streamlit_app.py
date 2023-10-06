@@ -30,8 +30,11 @@ def load_data(file_name):
     df = loader.data_loader(file_name)
     return df
 
-
+st.set_page_config(page_title="Immobilientransaktionen Wien")
 st.title("Immobilientransaktionen Wien - Analyse")
+st.markdown(
+    "Möchten Sie den Immobilienmarkt in Wien erkunden und fundierte Vorhersagen für Immobilienpreise treffen? Unser Streamlit-Dashboard ermöglicht es Ihnen, genau das zu tun! Hier haben Sie die Möglichkeit, Immobilienpreise in Wien anhand verschiedener Liegenschaftstypen und pro Quadratmeter zu prognostizieren. Darüber hinaus bieten wir Ihnen informative Grafiken, um Ihnen einen umfassenden Überblick über den aktuellen Markt zu verschaffen."
+)
 
 
 df = load_data(file_name="analysis_data.csv")
