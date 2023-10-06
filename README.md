@@ -61,6 +61,9 @@ AZURE_CONTAINER_NAME: 'mldata'
 - Airflow: [http://localhost:8080](http://localhost:8080) Benutzername ist admin und Passwort admin
 - MLFlow: [http://localhost:5000](http://localhost:5000)
 
+## zukünftige To-Do's:
+- semantische Standortanalyse: Im Projekt ist auch Weaviate miteingebunden, dies wurde nicht gelöscht, da man in der Zukunft eine semantische Standortanalyse machen könnte.
+- Daten auf minio  speichern
 
 ## Datensatz
 ### Abkürzungen im Dataset
